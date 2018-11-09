@@ -23,6 +23,9 @@ const NETFLIX = "https://www.netflix.com";
 const BRIGHTNESS_RAISED = 50;
 const BRIGHTNESS_LOWERED = 10;
 
+var currentTab = null;
+var wasBrightnessRaised = false;
+
 
 function set_brightness(brightness) {
     var request = new XMLHttpRequest();
@@ -42,15 +45,29 @@ function lower() {
 }
 
 
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-    if (changeInfo.status == 'complete' && tab.url.startsWith(NETFLIX)) {
-        raise();
+function startLoop() {
+    if (currentTab != null && currentTab.url.startsWith(NETFLIX)) {
+        chrome.windows.get(currentTab.windowId, {"windowTypes": ['normal']}, function(window) {
+            if (window.state == "fullscreen") {
+                if (!wasBrightnessRaised) {
+                    raise();
+                    wasBrightnessRaised = true;
+                }
+            } else if (wasBrightnessRaised) {
+                lower();
+                wasBrightnessRaised = false;
+            }
+            setTimeout(startLoop, 1000);
+        });
     }
-});
+}
 
 
 chrome.tabs.onActivated.addListener(function(info) {
     chrome.tabs.get(info.tabId, function(tab) {
-        tab.url.startsWith(NETFLIX) ? raise(): lower()
+        currentTab = tab;
+        if (tab.url.startsWith(NETFLIX)) {
+            startLoop();
+        }
     });
 });
