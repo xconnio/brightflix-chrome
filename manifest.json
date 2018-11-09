@@ -1,0 +1,11 @@
+  {
+    "name": "Brightflix",
+    "version": "1.0",
+    "description": "Automatically raises screen brightness of your laptop so your Netflix experience is brighter",
+    "permissions": ["http://127.0.0.1:5020/brightness", "tabs"],
+    "background": {
+      "scripts": ["background.js"],
+      "persistent": false
+    },
+    "manifest_version": 2
+  }
