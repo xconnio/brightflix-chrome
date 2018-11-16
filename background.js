@@ -19,12 +19,12 @@
 
 const NETFLIX = "https://www.netflix.com";
 
-// TODO: Make these configurable.
-const BRIGHTNESS_RAISED = 50;
-const BRIGHTNESS_LOWERED = 10;
+// TODO: Make this configurable.
+const BRIGHTNESS_RAISED = 70;
 
 var currentTab = null;
 var wasBrightnessRaised = false;
+var brightnessLowered = null;
 
 
 function set_brightness(brightness) {
@@ -34,14 +34,29 @@ function set_brightness(brightness) {
     request.send(JSON.stringify({"brightness": brightness}));
 }
 
+function backup_brightness_value() {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var jsonResponse = JSON.parse(request.responseText);
+            brightnessLowered = jsonResponse['brightness'];
+        }
+    }
+    request.open("GET", "http://127.0.0.1:5020/brightness", true);
+    request.send();
+}
+
 
 function raise() {
+    backup_brightness_value();
     set_brightness(BRIGHTNESS_RAISED);
 }
 
 
 function lower() {
-    set_brightness(BRIGHTNESS_LOWERED);
+    if (brightnessLowered != null) {
+        set_brightness(brightnessLowered);
+    }
 }
 
 
@@ -59,6 +74,11 @@ function startLoop() {
             }
             setTimeout(startLoop, 1000);
         });
+    } else {
+        if (wasBrightnessRaised) {
+            lower();
+            wasBrightnessRaised = false;
+        }
     }
 }
 
