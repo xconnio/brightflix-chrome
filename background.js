@@ -50,6 +50,7 @@ function backup_brightness_value() {
 function raise() {
     backup_brightness_value();
     set_brightness(BRIGHTNESS_RAISED);
+    wasBrightnessRaised = true;
 }
 
 
@@ -57,6 +58,7 @@ function lower() {
     if (brightnessLowered != null) {
         set_brightness(brightnessLowered);
     }
+    wasBrightnessRaised = false;
 }
 
 
@@ -66,18 +68,15 @@ function startLoop() {
             if (window.state == "fullscreen") {
                 if (!wasBrightnessRaised) {
                     raise();
-                    wasBrightnessRaised = true;
                 }
             } else if (wasBrightnessRaised) {
                 lower();
-                wasBrightnessRaised = false;
             }
             setTimeout(startLoop, 1000);
         });
     } else {
         if (wasBrightnessRaised) {
             lower();
-            wasBrightnessRaised = false;
         }
     }
 }
@@ -90,4 +89,9 @@ chrome.tabs.onActivated.addListener(function(info) {
             startLoop();
         }
     });
+});
+
+
+chrome.windows.onFocusChanged.addListener(function(winID) {
+    console.log(winID);
 });
