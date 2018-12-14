@@ -20,7 +20,7 @@
 const NETFLIX = "https://www.netflix.com";
 
 // TODO: Make this configurable.
-const BRIGHTNESS_RAISED = 70;
+const BRIGHTNESS_RAISED = 75;
 
 var currentTab = null;
 var wasBrightnessRaised = false;
@@ -29,7 +29,7 @@ var brightnessLowered = null;
 
 function set_brightness(brightness) {
     var request = new XMLHttpRequest();
-    request.open("POST", "http://127.0.0.1:5020/brightness", true);
+    request.open("POST", "http://127.0.0.1:5020/api/brightness", true);
     request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     request.send(JSON.stringify({"brightness": brightness}));
 }
@@ -42,7 +42,7 @@ function backup_brightness_value() {
             brightnessLowered = jsonResponse['brightness'];
         }
     }
-    request.open("GET", "http://127.0.0.1:5020/brightness", true);
+    request.open("GET", "http://127.0.0.1:5020/api/brightness", true);
     request.send();
 }
 
