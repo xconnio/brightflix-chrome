@@ -1,11 +1,11 @@
-  {
-    "name": "Brightflix",
-    "version": "1.0",
-    "description": "Automatically raises screen brightness of your laptop so your Netflix experience is brighter",
-    "permissions": ["http://127.0.0.1:5020/api/brightness", "tabs"],
-    "background": {
-      "scripts": ["background.js"],
-      "persistent": false
-    },
-    "manifest_version": 2
-  }
+{
+  "name": "Brightflix",
+  "version": "1.0",
+  "description": "Raises your Linux laptop's brightness when netflix.com goes fullscreen",
+  "permissions": ["tabs"],
+  "background": {
+    "scripts": ["autobahn.min.js", "background.js"],
+    "persistent": true
+  },
+  "manifest_version": 2
+}
