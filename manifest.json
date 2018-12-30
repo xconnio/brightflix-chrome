@@ -4,8 +4,7 @@
   "description": "Raises your Linux laptop's brightness when netflix.com goes fullscreen",
   "permissions": ["tabs"],
   "background": {
-    "scripts": ["autobahn.min.js", "background.js"],
-    "persistent": true
+    "scripts": ["background.js"]
   },
   "manifest_version": 2
 }

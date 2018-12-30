@@ -21,46 +21,35 @@ const NETFLIX = "https://www.netflix.com";
 // TODO: Make this configurable.
 const BRIGHTNESS_RAISED = 75;
 
-var currentTab = null;
-var wasBrightnessRaised = false;
+let currentTab = null;
+let wasBrightnessRaised = false;
 var brightnessLowered = null;
-var WAMPSession = null;
-
-function connect_crossbar() {
-    var connection = new autobahn.Connection({
-        url: "ws://127.0.0.1:5020/ws",
-        realm: "realm1"
-    });
-
-    connection.onopen = function (session, details) {
-        WAMPSession = session;
-        console.log('connected to WAMP router');
-    };
-
-    connection.onclose = function (reason, details) {
-        WAMPSession = null;
-        console.log('connection closed', reason, details);
-    };
-
-    connection.open();
-}
 
 
 function set_brightness(brightness, wasRaiseRequest) {
-    WAMPSession.call("io.crossbar.set_brightness", [brightness]).then(
-        function () {
+    const request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
             wasBrightnessRaised = wasRaiseRequest;
         }
-    );
+    };
+    request.open("POST", "http://127.0.0.1:5020/call", true);
+    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    request.send(JSON.stringify({"procedure": "io.crossbar.set_brightness", "args": [brightness]}));
 }
 
 function raise() {
-    WAMPSession.call("io.crossbar.get_brightness").then(
-        function (result) {
-            brightnessLowered = result;
+    const request = new XMLHttpRequest();
+    request.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            var jsonResponse = JSON.parse(request.responseText);
+            brightnessLowered = jsonResponse['args'][0];
             set_brightness(BRIGHTNESS_RAISED, true);
         }
-    );
+    };
+    request.open("POST", "http://127.0.0.1:5020/call", true);
+    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    request.send(JSON.stringify({"procedure": "io.crossbar.get_brightness"}));
 }
 
 
@@ -74,23 +63,19 @@ function lower() {
 function startLoop() {
     if (currentTab != null) {
         chrome.windows.get(currentTab.windowId, {"windowTypes": ['normal']}, function(window) {
-            if (window.state == "fullscreen") {
+            if (window.state === "fullscreen") {
                 if (!wasBrightnessRaised) {
                     raise();
                 }
             } else if (wasBrightnessRaised) {
                 lower();
             }
-            setTimeout(startLoop, 1000);
+            setTimeout(startLoop, 600);
         });
-    } else {
-        if (wasBrightnessRaised) {
-            lower();
-        }
+    } else if (wasBrightnessRaised) {
+        lower();
     }
 }
-
-connect_crossbar();
 
 
 chrome.tabs.onActivated.addListener(function(info) {
