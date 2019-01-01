@@ -16,40 +16,43 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-
 const NETFLIX = "https://www.netflix.com";
-// TODO: Make this configurable.
 const BRIGHTNESS_RAISED = 75;
 
 let currentTab = null;
 let wasBrightnessRaised = false;
-var brightnessLowered = null;
+let brightnessLowered = null;
 
 
-function set_brightness(brightness, wasRaiseRequest) {
+function call_procedure(procedure, arg, callback) {
     const request = new XMLHttpRequest();
     request.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
-            wasBrightnessRaised = wasRaiseRequest;
+            callback(request);
         }
     };
     request.open("POST", "http://127.0.0.1:5020/call", true);
     request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    request.send(JSON.stringify({"procedure": "io.crossbar.set_brightness", "args": [brightness]}));
+
+    if (arg == null) {
+        request.send(JSON.stringify({"procedure": procedure}));
+    } else {
+        request.send(JSON.stringify({"procedure": procedure, "args": [arg]}));
+    }
+}
+
+function set_brightness(brightness, wasRaiseRequest) {
+    call_procedure("io.crossbar.set_brightness", brightness, function (request) {
+        wasBrightnessRaised = wasRaiseRequest;
+    });
 }
 
 function raise() {
-    const request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            var jsonResponse = JSON.parse(request.responseText);
-            brightnessLowered = jsonResponse['args'][0];
-            set_brightness(BRIGHTNESS_RAISED, true);
-        }
-    };
-    request.open("POST", "http://127.0.0.1:5020/call", true);
-    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    request.send(JSON.stringify({"procedure": "io.crossbar.get_brightness"}));
+    call_procedure("io.crossbar.get_brightness", null, function (request) {
+        let jsonResponse = JSON.parse(request.responseText);
+        brightnessLowered = jsonResponse['args'][0];
+        set_brightness(BRIGHTNESS_RAISED, true);
+    });
 }
 
 
@@ -58,7 +61,6 @@ function lower() {
         set_brightness(brightnessLowered, false);
     }
 }
-
 
 function startLoop() {
     if (currentTab != null) {
@@ -76,7 +78,6 @@ function startLoop() {
         lower();
     }
 }
-
 
 chrome.tabs.onActivated.addListener(function(info) {
     chrome.tabs.get(info.tabId, function(tab) {
