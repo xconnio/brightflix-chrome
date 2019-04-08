@@ -42,13 +42,13 @@ function call_procedure(procedure, arg, callback) {
 }
 
 function set_brightness(brightness, wasRaiseRequest) {
-    call_procedure("io.crossbar.set_brightness", brightness, function (request) {
+    call_procedure("org.deskconn.brightness.set", brightness, function (request) {
         wasBrightnessRaised = wasRaiseRequest;
     });
 }
 
 function raise() {
-    call_procedure("io.crossbar.get_brightness", null, function (request) {
+    call_procedure("org.deskconn.brightness.get", null, function (request) {
         let jsonResponse = JSON.parse(request.responseText);
         brightnessLowered = jsonResponse['args'][0];
         set_brightness(BRIGHTNESS_RAISED, true);
