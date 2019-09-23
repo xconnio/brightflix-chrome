@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2018  Omer Akram
+* Copyright (C) 2018-2019 Omer Akram
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -16,49 +16,59 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-const NETFLIX = "https://www.netflix.com";
+const URL_NETFLIX = "https://www.netflix.com";
 const BRIGHTNESS_RAISED = 75;
+const PROCEDURE_BRIGHTNESS_SET = "org.deskconn.deskconn.brightness.set";
+const PROCEDURE_BRIGHTNESS_GET = "org.deskconn.deskconn.brightness.get";
 
 let currentTab = null;
 let wasBrightnessRaised = false;
 let brightnessLowered = null;
+let wamp_session = null;
+
+let connection = new autobahn.Connection({url: 'ws://localhost:5020/ws', realm: 'deskconn'});
+connection.onopen = function (session, details) {
+    wamp_session = session;
+};
+connection.onclose = function (reason) {
+    wamp_session = null;
+};
+connection.open();
 
 
-function call_procedure(procedure, arg, callback) {
-    const request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-        if (this.readyState === 4 && this.status === 200) {
-            callback(request);
-        }
-    };
-    request.open("POST", "http://127.0.0.1:5020/call", true);
-    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-
-    if (arg == null) {
-        request.send(JSON.stringify({"procedure": procedure}));
-    } else {
-        request.send(JSON.stringify({"procedure": procedure, "args": [arg]}));
+function set_brightness(brightness) {
+    if (wamp_session == null) {
+        return;
     }
-}
-
-function set_brightness(brightness, wasRaiseRequest) {
-    call_procedure("org.deskconn.brightness.set", brightness, function (request) {
-        wasBrightnessRaised = wasRaiseRequest;
-    });
+    wamp_session.call(PROCEDURE_BRIGHTNESS_SET, [brightness]).then(
+        function (response) {
+            wasBrightnessRaised = true;
+        },
+        function (error) {
+            console.log(error);
+        }
+    );
 }
 
 function raise() {
-    call_procedure("org.deskconn.brightness.get", null, function (request) {
-        let jsonResponse = JSON.parse(request.responseText);
-        brightnessLowered = jsonResponse['args'][0];
-        set_brightness(BRIGHTNESS_RAISED, true);
-    });
+    if (wamp_session == null) {
+        return;
+    }
+    wamp_session.call(PROCEDURE_BRIGHTNESS_GET).then(
+        function (response) {
+            console.log(response);
+            brightnessLowered = response;
+            set_brightness(BRIGHTNESS_RAISED)
+        },
+        function (error) {
+            console.log(error);
+        }
+    );
 }
-
 
 function lower() {
     if (brightnessLowered != null) {
-        set_brightness(brightnessLowered, false);
+        set_brightness(brightnessLowered);
     }
 }
 
@@ -81,7 +91,7 @@ function startLoop() {
 
 chrome.tabs.onActivated.addListener(function(info) {
     chrome.tabs.get(info.tabId, function(tab) {
-        if (tab.url.startsWith(NETFLIX)) {
+        if (tab.url.startsWith(URL_NETFLIX)) {
             currentTab = tab;
             startLoop();
         } else {

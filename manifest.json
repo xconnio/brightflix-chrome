@@ -5,6 +5,7 @@
   "permissions": ["tabs"],
   "background": {
     "scripts": [
+      "autobahn.min.js",
       "background.js"
     ],
     "persistent": true
