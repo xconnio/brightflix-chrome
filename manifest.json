@@ -2,7 +2,10 @@
   "name": "Brightflix",
   "version": "1.0",
   "description": "Increases laptop's brightness when netflix.com goes fullscreen",
-  "permissions": ["tabs"],
+  "permissions": [
+    "tabs",
+    "storage"
+  ],
   "background": {
     "scripts": [
       "autobahn.min.js",
@@ -16,7 +19,9 @@
     "128": "img/icon128.png"
   },
   "browser_action": {
-    "default_icon": "img/icon128.png"
+    "default_icon": "img/icon128.png",
+    "default_popup": "popup.html",
+    "default_title": "Save that link!"
   },
   "manifest_version": 2
 }
