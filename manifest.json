@@ -4,14 +4,15 @@
   "description": "Increases laptop's brightness when netflix.com goes fullscreen",
   "permissions": [
     "tabs",
-    "storage"
+    "storage",
+    "activeTab"
   ],
   "background": {
     "scripts": [
-      "autobahn.min.js",
-      "background.js"
+      "js/autobahn.min.js",
+      "js/background.js"
     ],
-    "persistent": true
+    "persistent": false
   },
   "icons": {
     "16": "img/icon16.png",
@@ -20,8 +21,7 @@
   },
   "browser_action": {
     "default_icon": "img/icon128.png",
-    "default_popup": "popup.html",
-    "default_title": "Save that link!"
+    "default_popup": "html/popup.html"
   },
   "manifest_version": 2
 }

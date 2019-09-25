@@ -16,8 +16,7 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-const URL_NETFLIX = "https://www.netflix.com";
-const BRIGHTNESS_RAISED = 75;
+const URL_NETFLIX = "https://";
 const PROCEDURE_BRIGHTNESS_SET = "org.deskconn.deskconn.brightness.set";
 const PROCEDURE_BRIGHTNESS_GET = "org.deskconn.deskconn.brightness.get";
 
@@ -56,9 +55,11 @@ function raise() {
     }
     wamp_session.call(PROCEDURE_BRIGHTNESS_GET).then(
         function (response) {
-            console.log(response);
             brightnessLowered = response;
-            set_brightness(BRIGHTNESS_RAISED)
+            chrome.storage.local.get({"brightness": 70}, function(result) {
+                set_brightness(result.brightness);
+                console.log('Value currently is ' + result.brightness);
+            });
         },
         function (error) {
             console.log(error);
