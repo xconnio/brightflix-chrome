@@ -7,23 +7,14 @@
     "storage",
     "activeTab"
   ],
-  "background": {
-    "scripts": [
+  "background.service_worker": [
       "js/autobahn.min.js",
       "js/background.js"
     ],
-    "persistent": false
-  },
   "icons": {
     "48": "img/icon48.png",
     "128": "img/icon128.png"
   },
-  "browser_action": {
-    "default_icon": {
-      "48": "img/icon48.png",
-      "128": "img/icon128.png"
-    },
-    "default_popup": "html/popup.html"
-  },
-  "manifest_version": 2
+
+  "manifest_version": 3
 }
