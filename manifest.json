@@ -11,10 +11,12 @@
       "js/autobahn.min.js",
       "js/background.js"
     ],
-  "icons": {
-    "48": "img/icon48.png",
-    "128": "img/icon128.png"
+  "action": {
+    "default_icon": {
+      "48": "img/icon48.png",
+      "128": "img/icon128.png"
+    },
+    "default_popup": "html/popup.html"
   },
-
   "manifest_version": 3
 }
