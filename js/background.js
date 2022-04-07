@@ -25,10 +25,12 @@ let wasBrightnessRaised = false;
 let brightnessLowered = null;
 let wamp_session = null;
 
+
 let connection = new autobahn.Connection({url: 'ws://localhost:5020/ws', realm: 'deskconn'});
 connection.onopen = function (session, details) {
     wamp_session = session;
 };
+
 connection.onclose = function (reason) {
     wamp_session = null;
 };
@@ -56,7 +58,7 @@ function raise() {
     wamp_session.call(PROCEDURE_BRIGHTNESS_GET).then(
         function (response) {
             brightnessLowered = response;
-            chrome.storage.local.get({"brightness": 70}, function(result) {
+            chrome.storage.local.get({"brightness": 70}, function (result) {
                 set_brightness(result.brightness);
                 console.log('Value currently is ' + result.brightness);
             });
@@ -75,7 +77,7 @@ function lower() {
 
 function startLoop() {
     if (currentTab != null) {
-        chrome.windows.get(currentTab.windowId, {"windowTypes": ['normal']}, function(window) {
+        chrome.windows.get(currentTab.windowId, {"windowTypes": ['normal']}, function (window) {
             if (window.state === "fullscreen") {
                 if (!wasBrightnessRaised) {
                     raise();
@@ -90,8 +92,8 @@ function startLoop() {
     }
 }
 
-chrome.tabs.onActivated.addListener(function(info) {
-    chrome.tabs.get(info.tabId, function(tab) {
+chrome.tabs.onActivated.addListener(function (info) {
+    chrome.tabs.get(info.tabId, function (tab) {
         if (tab.url.startsWith(URL_NETFLIX)) {
             currentTab = tab;
             startLoop();

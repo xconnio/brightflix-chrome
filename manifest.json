@@ -5,25 +5,18 @@
   "permissions": [
     "tabs",
     "storage",
-    "activeTab"
+    "activeTab",
+    "scripting"
   ],
   "background": {
-    "scripts": [
-      "js/autobahn.min.js",
-      "js/background.js"
-    ],
-    "persistent": false
+    "service_worker": "js/bg-loader.js"
   },
-  "icons": {
-    "48": "img/icon48.png",
-    "128": "img/icon128.png"
-  },
-  "browser_action": {
+  "action": {
     "default_icon": {
       "48": "img/icon48.png",
       "128": "img/icon128.png"
     },
     "default_popup": "html/popup.html"
   },
-  "manifest_version": 2
+  "manifest_version": 3
 }
